@@ -1,0 +1,398 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glagslator - Google Translate</title>
+    <style>
+        :root {
+            --bg-primary: #1f1f1f;
+            --surface: #2d2d2d;
+            --border: #3c4043;
+            --text-main: #e8eaed;
+            --text-sub: #9aa0a6;
+            --accent-blue: #8ab4f8;
+            --hover-bg: #35363a;
+            
+            --glag-yellow: #ffd700;
+            --glag-cyan: #00f3ff;
+            --glag-red: #ff3344;
+        }
+
+        body {
+            font-family: Roboto, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Header Bar styling */
+        header {
+            width: 100%;
+            height: 64px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            box-sizing: border-box;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            color: var(--text-main);
+            font-weight: 400;
+        }
+        .logo-text span {
+            color: var(--accent-blue);
+            font-weight: 700;
+        }
+
+        /* Main Workspace Container */
+        .translator-container {
+            max-width: 1260px;
+            width: 95%;
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        /* Language Selectors Navigation Bar */
+        .lang-bar {
+            display: flex;
+            height: 48px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+            position: relative;
+        }
+
+        .lang-side {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            position: relative;
+        }
+
+        .lang-btn {
+            background: none;
+            border: none;
+            color: var(--accent-blue);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            height: 100%;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 3px solid var(--accent-blue);
+        }
+
+        .lang-btn .arrow {
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+
+        .divider-line {
+            width: 1px;
+            height: 24px;
+            background-color: var(--border);
+        }
+
+        /* Custom Dropdown Menus */
+        .dropdown-menu {
+            position: absolute;
+            top: 48px;
+            left: 16px;
+            width: 280px;
+            background-color: #303134;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+            z-index: 10;
+            display: none;
+            padding: 8px 0;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 20px;
+            font-size: 14px;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        /* Two-Column Editor Layout */
+        .translation-body {
+            display: flex;
+            min-height: 180px;
+        }
+
+        .input-panel, .output-panel {
+            flex: 1;
+            padding: 16px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .input-panel {
+            border-right: 1px solid var(--border);
+        }
+
+        textarea {
+            width: 100%;
+            height: 140px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            box-sizing: border-box;
+            padding: 0;
+        }
+
+        .output-box {
+            font-size: 18px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            min-height: 140px;
+        }
+
+        /* Specialized Glaggleverse Font Classes styling overrides */
+        .giggish-style { color: var(--glag-yellow); font-family: sans-serif; }
+        .gazan-style { color: var(--glag-cyan); font-family: 'Courier New', monospace; font-weight: bold; letter-spacing: 2px; }
+        .enphosio-style { color: var(--glag-red); font-family: Impact, sans-serif; letter-spacing: 1px; }
+
+        /* Interface Action Bar Footer */
+        .footer-actions {
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .copy-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--hover-bg);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-text">Google <span>Glagslator</span></div>
+    </header>
+
+    <div class="translator-container">
+        
+        <!-- Language Top Menu Navigation Selection Bar -->
+        <div class="lang-bar">
+            <!-- Source Menu Panel side -->
+            <div class="lang-side">
+                <button class="lang-btn" id="srcLangBtn" onclick="toggleDropdown('srcDropdown')">
+                    <span id="srcLangText">English (Human)</span> <span class="arrow">▼</span>
+                </button>
+                
+                <div class="dropdown-menu" id="srcDropdown">
+                    <div class="dropdown-item" onclick="selectSource('English')">English</div>
+                    <div class="dropdown-item" onclick="selectSource('Spanish')">Spanish</div>
+                    <div class="dropdown-item" onclick="selectSource('Mandarin')">Mandarin</div>
+                    <div class="dropdown-item" onclick="selectSource('French')">French</div>
+                    <div class="dropdown-item" onclick="selectSource('Italian')">Italian</div>
+                    <div class="dropdown-item" onclick="selectSource('German')">German</div>
+                    <div class="dropdown-item" onclick="selectSource('Japanese')">Japanese</div>
+                    <div class="dropdown-item" onclick="selectSource('Korean')">Korean</div>
+                </div>
+            </div>
+
+            <div class="divider-line"></div>
+
+            <!-- Target Menu Panel side (Glaggleverse ONLY) -->
+            <div class="lang-side">
+                <button class="lang-btn" id="trgLangBtn" onclick="toggleDropdown('trgDropdown')">
+                    <span id="trgLangText">Giggish</span> <span class="arrow">▼</span>
+                </button>
+                
+                <div class="dropdown-menu" id="trgDropdown">
+                    <div class="dropdown-item" onclick="selectTarget('Giggish')">Giggish (Joyous)</div>
+                    <div class="dropdown-item" onclick="selectTarget('Gazan')">Gazan (Ancient)</div>
+                    <div class="dropdown-item" onclick="selectTarget('Enphosio')">Enphosio (Corrupted)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Body Panels Blocks Layout Area -->
+        <div class="translation-body">
+            <div class="input-panel">
+                <textarea id="sourceInput" placeholder="Enter text to translate..." maxlength="5000"></textarea>
+            </div>
+            <div class="output-panel">
+                <div id="targetOutput" class="output-box giggish-style">Translation will materialize here...</div>
+            </div>
+        </div>
+
+        <!-- Bottom Informational Panel Bar Area Structure -->
+        <div class="footer-actions">
+            <div id="charCounter">0 / 5000</div>
+            <button class="copy-btn" onclick="copyResult()">Copy Translation</button>
+        </div>
+
+    </div>
+
+    <script>
+        let currentSourceLang = "English";
+        let currentTargetLang = "Giggish";
+
+        // Vocabulary library lookup data arrays
+        const giggishGlossary = {
+            "hello": "giggle-greet",
+            "hi": "giggle-hi",
+            "bye": "giggle-out",
+            "kill": "tickle",
+            "die": "pop",
+            "human": "flatface",
+            "friend": "gimbro",
+            "enemy": "enphosian scum",
+            "sad": "sobber-like",
+            "happy": "glaggle-joyous",
+            "war": "smile-struggle",
+            "food": "goobab juice",
+            "boss": "big giggler"
+        };
+
+        const zalgoTopStrings = ['̍', '̎', '̄', '̅', '̿', '̑', '̆', '̐', '͒', '͗', '͑', '̇'];
+        const zalgoBottomStrings = ['̖', '̗', '̘', '̙', '̜', '̟', '̠', '̤', '̥', '̦'];
+
+        function toggleDropdown(id) {
+            // Close other dropdown configurations safely first
+            if (id === 'srcDropdown') document.getElementById('trgDropdown').classList.remove('active');
+            if (id === 'trgDropdown') document.getElementById('srcDropdown').classList.remove('active');
+            
+            document.getElementById(id).classList.toggle('active');
+        }
+
+
+function selectSource(lang) {
+currentSourceLang = lang;
+document.getElementById('srcLangText').innerText = lang + " (Human)";
+document.getElementById('srcDropdown').classList.remove('active');
+runLiveTranslation();
+}
+function selectTarget(lang) {
+currentTargetLang = lang;
+document.getElementById('trgLangText').innerText = lang;
+document.getElementById('trgDropdown').classList.remove('active');
+// Switch rendering CSS layout styling types matching target
+const outputBox = document.getElementById('targetOutput');
+outputBox.className = "output-box";
+if (lang === 'Giggish') outputBox.classList.add('giggish-style');
+if (lang === 'Gazan') outputBox.classList.add('gazan-style');
+if (lang === 'Enphosio') outputBox.classList.add('enphosio-style');
+runLiveTranslation();
+}
+function buildZalgoCorruptions(str) {
+let corruptedVal = "";
+for (let x = 0; x < str.length; x++) {
+corruptedVal += str[x];
+if (str[x] !== " " && Math.random() > 0.35) {
+corruptedVal += zalgoTopStrings[Math.floor(Math.random() * zalgoTopStrings.length)];
+corruptedVal += zalgoBottomStrings[Math.floor(Math.random() * zalgoBottomStrings.length)];
+}
+}
+return corruptedVal;
+}
+function runLiveTranslation() {
+const rawInput = document.getElementById('sourceInput').value;
+const outputElement = document.getElementById('targetOutput');
+document.getElementById('charCounter').innerText = rawInput.length + " / 5000";
+if (!rawInput.trim()) {
+outputElement.innerText = "Translation will materialize here...";
+return;
+}
+let computedText = rawInput;
+if (currentTargetLang === 'Giggish') {
+let segments = computedText.split(/\b/);
+for (let k = 0; k < segments.length; k++) {
+let look = segments[k].toLowerCase();
+if (giggishGlossary[look]) {
+if (segments[k] === segments[k].toUpperCase()) {
+segments[k] = giggishGlossary[look].toUpperCase();
+} else {
+segments[k] = giggishGlossary[look];
+}
+}
+}
+outputElement.innerText = "¡Hehehe! " + segments.join("") + " :) ¡GLAGGLE ON!";
+} else if (currentTargetLang === 'Gazan') {
+let encodedGazan = computedText.toUpperCase()
+.replace(/A/g, "𐎂")
+.replace(/E/g, "𐎄")
+.replace(/I/g, "𐎏")
+.replace(/O/g, "𐎘")
+.replace(/U/g, "𐎟")
+.replace(/S/g, "𐎚");
+outputElement.innerText = "⦗ " + encodedGazan + " ⦘";
+} else if (currentTargetLang === 'Enphosio') {
+let automatedBase = computedText.toUpperCase()
+.replace(/E/g, "Ǝ")
+.replace(/R/g, "Я")
+.replace(/N/g, "₦")
+.replace(/O/g, "Ø")
+.replace(/S/g, "₴");
+let structureString = "¡H̵̍͘O̵͗̿N̸͊͋K̶̉̿! " + automatedBase + " ... ¡Ḋ̵̚É̷͝S̴̎͗T̷͑̕Ȑ̷̕U̷̿̅C̸͊͐T̶͑͐I̶̍̏Ò̶͑N̸͐͝!";
+outputElement.innerText = buildZalgoCorruptions(structureString);
+}
+}
+// Setup structural real-time evaluation bindings
+document.getElementById('sourceInput').addEventListener('input', runLiveTranslation);
+// Close selectors when clicking completely outside the navigation block elements
+window.onclick = function(event) {
+if (!event.target.matches('.lang-btn') && !event.target.matches('.lang-btn span')) {
+document.getElementById('srcDropdown').classList.remove('active');
+document.getElementById('trgDropdown').classList.remove('active');
+}
+}
+function copyResult() {
+const outText = document.getElementById('targetOutput').innerText;
+navigator.clipboard.writeText(outText).then(() => {
+alert("Translation copied cleanly to clipboard!");
+});
+}  
